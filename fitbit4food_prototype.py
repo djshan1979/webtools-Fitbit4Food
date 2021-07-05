@@ -320,7 +320,7 @@ def recommendation_engine_gui():
 										col13 = "No Information to display"
 
 							# print(col9_for_Json)
-							# print("")
+							
 							PRODUCT_CARD += '''
 							<!-- The Modal -->
 							<div class="modal" id="card_{idx}">
