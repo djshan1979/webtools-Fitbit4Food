@@ -170,6 +170,9 @@ class Scorecard_generator:
             data_index = data["Product Title"].str.find(product_name)
 
             print("product_name", product_name)
+            #blob_pname = TextBlob(product_name)
+            #product_name = str(blob_pname.correct())
+            #print("correct product_name", product_name)
 
             # Check product is present in our data base if not pass
             if data_index.max() != -1:
@@ -187,6 +190,29 @@ class Scorecard_generator:
                 #convert multiple white space to single
                 text_description = re.sub(' +', ' ', text_description)
 
+                #print(text_description)
+                #print(type(text_description))
+
+                #------- R & D stuff ----------#
+                
+                #blob = TextBlob(text_description)
+                #text_description = str(blob.correct())
+                # prints the corrected spelling
+                #print("corrected text: "+str(blob.correct()))
+                #text_description = data.values.tolist()
+                #text_description = ' '.join(str(v) for v in text_description)
+                #discription_out['features'] = discription_out['Product Title'].astype(str) + ' ' + discription_out['Product Detail'].astype(str) + ' ' + discription_out['Ingredients'].astype(str) + ' ' + ' ' + discription_out['Nutritional_information'].astype(str) + ' ' + discription_out['Allergen warnings'].astype(str) + ' ' + discription_out['Claims'].astype(str) + ' ' + discription_out['Endorsements'].astype(str) 
+
+                #text_description = discription_out["Name"].str.cat(new, sep =", ")
+                #print(data['features'])
+                #text_description = data.apply(' '.join, axis=1)
+
+                #text_description = discription_out["Product Title", "Product Detail"].astype(str).apply(''.join, axis=1)
+                #print(product_name)
+                #print("WE ARE HERE")
+                #print("-----------------------------")
+                #text_description = discription_out['Product Title'] + ' ' + discription_out['Product Detail'] + ' ' + str(discription_out['Ingredients']) + ' ' + str(discription_out['Nutritional_information']) + ' ' + str(discription_out['Allergen warnings']) + ' ' + str(discription_out['Claims'])#.astype(str)
+
                 # add space to merge next product
                 text_description += " "
 
@@ -196,6 +222,8 @@ class Scorecard_generator:
         except Exception as e:
             print(e)
             text_description = ""
+            
+
 
         return text_description
 
@@ -286,7 +314,7 @@ class Scorecard_generator:
             score = self.find_distances_and_cosine(extracted_data, USER_PREFERENCE_TEXT)
             #print(score)
             # This function is used to increase your distance value with certain parameters 
-            # Because we never get 100 Percent match with only distance. This function will help to get 100 % matching
+            # Becasue we never get 100 Percent match with only distance. This function will help to get 100 % matching
             normalized_score += self.get_normalized_score(score)
             #print("score from 1st method", score)
         else :
