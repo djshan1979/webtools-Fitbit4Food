@@ -308,6 +308,7 @@ def recommendation_engine_gui():
 										col8 = "No Information to display"
 							if str(col9) == 'nan':
 								col9 = "No Information to display"
+								col9_for_Json = ""
 							else:
 								col9_for_Json = col9.replace('"','\\"')
 							if str(col10) == 'nan':
