@@ -21,8 +21,9 @@ class Recommendation_Engine:
     def __init__(self, my_preference):
 
         # read data from csv
-        self._read_csv("all_product_data.csv")
+        # self._read_csv("all_product_data.csv")
 
+        # read data from database
         self.get_dynamic_data('dynamic_database.db')
 
         # select relevent features
@@ -44,6 +45,7 @@ class Recommendation_Engine:
         try:
             conn_db = sqlite3.connect(dbname)
             self.dynamic_data = pd.read_sql_query("SELECT * FROM product_data", conn_db)
+            # print(self.dynamic_data)
             print("dynamic_data LOADED")
         except Exception as e:
             self.dynamic_data = None
@@ -72,11 +74,11 @@ class Recommendation_Engine:
         '''
         try:
             # remove null records 
-            self.df['features'].dropna(inplace=True)
+            self.dynamic_data['features'].dropna(inplace=True)
             
             # convert to lower case
-            self.df["features"] = self.df["features"].str.lower() 
-            #print(self.df['features'])
+            self.dynamic_data["features"] = self.dynamic_data["features"].str.lower() 
+            #print(self.dynamic_data['features'])
         
         except Exception as e:
             print(e)
@@ -84,21 +86,21 @@ class Recommendation_Engine:
     def feature_selection(self):
         try:
             # Uncomment this one based on requirement (Check speed in r_d folder)
-            # self.selected_features = ['Product Title', 'Product Detail', 'Ingredients']
-            # self.df['features'] = self.df[self.selected_features].agg(' '.join, axis=1)#.str.replace('\s+', ' ')
-            # self.df['features'] = self.df[self.selected_features].astype(str).apply(lambda x: ' '.join(x), axis=1)
-            # self.df['features'] = self.df[self.selected_features].astype(str).sum(axis=1)
+            # self.selected_features = ['ProductTitle', 'Product Detail', 'Ingredients']
+            # self.dynamic_data['features'] = self.dynamic_data[self.selected_features].agg(' '.join, axis=1)#.str.replace('\s+', ' ')
+            # self.dynamic_data['features'] = self.dynamic_data[self.selected_features].astype(str).apply(lambda x: ' '.join(x), axis=1)
+            # self.dynamic_data['features'] = self.dynamic_data[self.selected_features].astype(str).sum(axis=1)
             t5 = time.time()
-            self.df['features'] = self.df['Product Title'].astype(str) + ' ' + self.df['Product Detail'].astype(str) + ' ' + self.df['Ingredients'].astype(str) + ' ' + self.df['Product Price'].astype(str) + ' ' + self.df['Product Volume'].astype(str)  + ' ' + self.df['Nutritional_information'].astype(str) + ' ' + self.df['Allergen warnings'].astype(str) + ' ' + self.df['Claims'].astype(str) + ' ' + self.df['Endorsements'].astype(str) + ' ' + self.df['Product origin'].astype(str)
+            self.dynamic_data['features'] = self.dynamic_data['ProductTitle'].astype(str) + ' ' + self.dynamic_data['ProductDetail'].astype(str) + ' ' + self.dynamic_data['Ingredients'].astype(str) + ' ' + self.dynamic_data['ProductPrice'].astype(str) + ' ' + self.dynamic_data['ProductVolume'].astype(str)  + ' ' + self.dynamic_data['Nutritional_information'].astype(str) + ' ' + self.dynamic_data['Allergenwarnings'].astype(str) + ' ' + self.dynamic_data['Claims'].astype(str) + ' ' + self.dynamic_data['Endorsements'].astype(str) + ' ' + self.dynamic_data['Productorigin'].astype(str)
             t6 = time.time()
             print("Time 3: ", t6-t5)
-            # print(self.df['features'])
+            # print(self.dynamic_data['features'])
         except Exception as e:
             print(e)
 
     # this function is use to check tokanization works properly 
     def tokanization(self):
-        #print(self.df['Product Title'])
+        #print(self.dynamic_data['ProductTitle'])
         try:    
             nltk.sent_tokenize("Hello world")
         except Exception as e:
@@ -176,7 +178,7 @@ class Recommendation_Engine:
         else:
             USER_PREFERENCE_TEXT = USER_PREFERENCE_TEXT.lower()
 
-            recommendation_list['features_priority_1'] = recommendation_list['Product Title'].astype(str) + ' ' + recommendation_list['Category'].astype(str)
+            recommendation_list['features_priority_1'] = recommendation_list['ProductTitle'].astype(str) + ' ' + recommendation_list['Category'].astype(str)
 
             # Priority 1 : user input title + words from USER_PREFERENCE
             title_data = recommendation_list['features_priority_1'].values.tolist()
@@ -187,14 +189,15 @@ class Recommendation_Engine:
             # # filter distance using THRESHOLD
             # THRESHOLD > 2.1 for get products form only title. (distances_1>=2.1 sava as it is)
             # CASE 1 Output
-            recommendation_list_priority1 = recommendation_list[recommendation_list['distances_1'] >= 1.3/100].sort_values(by=['distances_1'], ascending=False)
+            # recommendation_list_priority1 = recommendation_list[recommendation_list['distances_1'] >= 1.3/100].sort_values(by=['distances_1'], ascending=False)
+            recommendation_list_priority1 = recommendation_list[recommendation_list['distances_1'] >= 1.3/100].sort_values(by=['RL_weights'], ascending=False)
 
             # CASE 2 / Priority 2 user input + PREFERENCE + other attributes 
             # select column form recommendation_list for priority 2 and further process 
             recommendation_list_priority2 = recommendation_list[recommendation_list['distances_1'] < 1.3/100].sort_values(by=['distances_1'], ascending=False)
-
+            # sort_values(['distances_1', 'RL_weights'], ascending = [False, False], inplace = False)
             #Select other features for case 2
-            recommendation_list_priority2['features_priority_2'] = recommendation_list_priority2['Product Title'].astype(str) + ' ' + recommendation_list_priority2['Category'].astype(str) + ' ' +recommendation_list_priority2['Ingredients'].astype(str) + ' ' + recommendation_list_priority2['Nutritional_information'].astype(str) + ' ' + recommendation_list_priority2['Allergen warnings'].astype(str) + ' ' + recommendation_list_priority2['Claims'].astype(str) + ' ' + recommendation_list_priority2['Endorsements'].astype(str)
+            recommendation_list_priority2['features_priority_2'] = recommendation_list_priority2['ProductTitle'].astype(str) + ' ' + recommendation_list_priority2['Category'].astype(str) + ' ' +recommendation_list_priority2['Ingredients'].astype(str) + ' ' + recommendation_list_priority2['Nutritional_information'].astype(str) + ' ' + recommendation_list_priority2['Allergenwarnings'].astype(str) + ' ' + recommendation_list_priority2['Claims'].astype(str) + ' ' + recommendation_list_priority2['Endorsements'].astype(str)
             
             other_data = recommendation_list_priority2['features_priority_2'].values.tolist()
 
@@ -202,8 +205,10 @@ class Recommendation_Engine:
             recommendation_list_priority2['distances_2'] = self.find_tfidf_and_cosine(other_data, USER_PREFERENCE_TEXT)
 
             # sort data CASE 2
-            recommendation_list_priority2 = recommendation_list_priority2.sort_values(by=['distances_2'], ascending=False)
+            # recommendation_list_priority2 = recommendation_list_priority2.sort_values(by=['distances_2'], ascending=False)
             
+            recommendation_list_priority2 = recommendation_list_priority2.sort_values(by=['RL_weights'], ascending=False)
+
             #print("New LEN: ", len(recommendation_list_priority2.index))
             #print(recommendation_list_priority2)
 
@@ -369,31 +374,16 @@ class Recommendation_Engine:
 
             KEYWORD = KEYWORD.lower()
             #print(KEYWORD)
-            
-            # RL based TOP priority
-
-            self.dynamic_data_title = self.dynamic_data['Product Title'].values.tolist()
-
-            self.dynamic_data['distances'] = self.find_tfidf_and_cosine(self.dynamic_data_title, KEYWORD)
-
-            # filter distance using THRESHOLD and sort by RL weight
-            self.dynamic_list_1 = self.dynamic_data[self.dynamic_data['RL_weight'] >= 0].sort_values(by=['RL_weight'], ascending=False)
-
-            self.length_dynamic_list_1 = len(self.dynamic_list_1.index)
-
-            # get top weight products dataframe
-            print(self.length_dynamic_list_1)
-            print(self.dynamic_list_1)
 
             # Standard listing without RL
             # Create list and append user input   
-            self.data_list = self.df['Product Title'].values.tolist()
+            self.data_list = self.dynamic_data['ProductTitle'].values.tolist()
             
             # Priority 4 : (GET all product associated with keyword using title)
-            self.df['distances'] = self.find_tfidf_and_cosine(self.data_list, KEYWORD)
+            self.dynamic_data['distances'] = self.find_tfidf_and_cosine(self.data_list, KEYWORD)
 
             # filter distance using THRESHOLD
-            self.recommendation_list = self.df[self.df['distances'] >= THRESHOLD/100].sort_values(by=['distances'], ascending=False)
+            self.recommendation_list = self.dynamic_data[self.dynamic_data['distances'] >= THRESHOLD/100].sort_values(by=['distances'], ascending=False)
             
             self.legnth_recommendation_list = len(self.recommendation_list.index)
             
@@ -409,21 +399,41 @@ class Recommendation_Engine:
             except Exception as e:
                 print('Error in Data order manipulation',e)
                 pass
-            
+
+            # RL based TOP priority
+
+            # self.dynamic_data_title = self.dynamic_data['ProductTitle'].values.tolist()
+
+            # self.dynamic_data['distances'] = self.find_tfidf_and_cosine(self.dynamic_data_title, KEYWORD)
+
+            # filter distance using THRESHOLD and sort by RL weight
+            # self.recommendation_list = self.recommendation_list[self.recommendation_list['RL_weights'] >= 0].sort_values(by=['RL_weights'], ascending=False)
+
+            # self.recommendation_list = self.recommendation_list.sort_values(by=['RL_weights'], ascending=False)
+            # # df.sort_values(['Player', 'Year', 'Tm_Rank'], ascending = [True, True, True], inplace = True)
+            # self.length_dynamic_list_1 = len(self.recommendation_list.index)
+
+            # get top weight products dataframe
+            # print(self.length_dynamic_list_1)
+            # print(self.recommendation_list)
+
+
+
+
             # remove features and distances column from output data
             del self.recommendation_list['features']
             del self.recommendation_list['distances']
 
             # merge RL data and standard data without RL
-            self.recommendation_list = self.dynamic_list_1.append(self.recommendation_list, ignore_index = True)
+            # self.recommendation_list = self.dynamic_list_1.append(self.recommendation_list, ignore_index = True)
 
             #print(self.recommendation_list)
             #################################################################################
             # Uncomment this part if you required to recommended product only in fix number 
             # n = 5
-            # n_largest = self.df['distances'].nlargest(n + 1)
+            # n_largest = self.dynamic_data['distances'].nlargest(n + 1)
             # print(n_largest)
-            # print(self.df['Product Title'].iloc[self.df['distances'].nlargest(n + 1)])
+            # print(self.dynamic_data['ProductTitle'].iloc[self.dynamic_data['distances'].nlargest(n + 1)])
             #################################################################################
         
         except Exception as e:
@@ -450,7 +460,7 @@ if __name__ == "__main__":
 
             # create Object of Recommendation_Engine     
             t1 = time.time()
-            recommendation_engine = Recommendation_Engine()
+            recommendation_engine = Recommendation_Engine([])
             t2 = time.time()
             print("Time 1: ", t2-t1)
             # GET recommendation list form recommendations_from_keyword method 
@@ -463,17 +473,17 @@ if __name__ == "__main__":
 
             # empty_flag is for empty recommendation_list :: Helps to dispaly 'no product available with this key word' in site
             t3 = time.time()
-            
-            recommendations, len_of_list, empty_flag = recommendation_engine.recommendations_from_keyword(keyword, THRESHOLD= 2, USER_PREFERENCE_TEXT= 'Nuts Chocolate')
+
+            recommendations, len_of_list, empty_flag = recommendation_engine.recommendations_from_keyword(keyword, THRESHOLD= 2, USER_PREFERENCE= ['Nuts Chocolate'])
             t4 = time.time()
             print("Time 2: ", t4-t3)
 
             # check full data frame
             #print(recommendations)
 
-            recommendations.to_csv( 'Recommendation_results/'+ keyword+'_results.csv') 
+            # recommendations.to_csv( 'Recommendation_results/'+ keyword+'_results.csv') 
             # see only title
-            print(recommendations['Product Title'])
+            print(recommendations['ProductTitle'])
             print('Length of recommendation list : ', len_of_list)
             print('Flag represent recommendation list is empty(True) or not(False): ', empty_flag)
     

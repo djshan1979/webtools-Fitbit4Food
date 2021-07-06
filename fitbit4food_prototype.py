@@ -208,7 +208,7 @@ def recommendation_engine_gui():
 				#st.write(sub_recommendations)
 
 				# Select required column
-				myrows = zip(sub_recommendations['URL'], sub_recommendations['Product Title'], sub_recommendations['Product Image'], sub_recommendations['Product Price'], sub_recommendations['Product Volume'], sub_recommendations['Category'], sub_recommendations['Product Detail'], sub_recommendations['Ingredients'], sub_recommendations['Nutritional_information'], sub_recommendations['Allergen warnings'], sub_recommendations['Claims'], sub_recommendations['Endorsements'], sub_recommendations['Product origin'])
+				myrows = zip(sub_recommendations['URL'], sub_recommendations['ProductTitle'], sub_recommendations['ProductImage'], sub_recommendations['ProductPrice'], sub_recommendations['ProductVolume'], sub_recommendations['Category'], sub_recommendations['ProductDetail'], sub_recommendations['Ingredients'], sub_recommendations['Nutritional_information'], sub_recommendations['Allergenwarnings'], sub_recommendations['Claims'], sub_recommendations['Endorsements'], sub_recommendations['Productorigin'])
 				
 				# html header
 				PRODUCT_CARD = '''
@@ -283,42 +283,43 @@ def recommendation_engine_gui():
 				for idx, (col1,col2,col3,col4,col5,col6,col7,col8,col9,col10,col11,col12,col13) in enumerate(myrows):
 							# create HTML product card
 
-							if str(col4) == 'nan':
-										availability = "Not available"
-										availability_color = 'text-danger'
-										col4 = "N/A"
+							if col4 is None:
+								availability = "Not available"
+								availability_color = 'text-danger'
+								col4 = "N/A"
 							else:
-										availability = "Available"
-										availability_color = 'text-success'
+								availability = "Available"
+								availability_color = 'text-success'
 
 							# convert category string to list
 							if len(col6) > 4:
-									import ast
-									col6_array = ast.literal_eval(col6)
-									# print(col6_array)
-									# print(type(col6_array))
-									category_html = '''<div class="mt-1 mb-1 spec-1">'''
-									for i in col6_array:
-										category_html += '''<span class="dot"></span> <span>{value}</span>'''.format(value=i)
-									category_html += "<br></div>"
+								import ast
+								col6_array = ast.literal_eval(col6)
+								# print(col6_array)
+								# print(type(col6_array))
+								category_html = '''<div class="mt-1 mb-1 spec-1">'''
+								for i in col6_array:
+									category_html += '''<span class="dot"></span> <span>{value}</span>'''.format(value=i)
+								category_html += "<br></div>"
 
-							if str(col7) == 'nan':
-										col7 = "No Information to display"
-							if str(col8) == 'nan':
-										col8 = "No Information to display"
-							if str(col9) == 'nan':
+							if col7 is None:
+								col7 = "No Information to display"
+							if col8 is None:
+								col8 = "No Information to display"
+							
+							if col9 is None:
 								col9 = "No Information to display"
 								col9_for_Json = ""
 							else:
 								col9_for_Json = col9.replace('"','\\"')
-							if str(col10) == 'nan':
-										col10 = "No Information to display"
-							if str(col11) == 'nan':
-										col11 = "No Information to display"
-							if str(col12) == 'nan':
-										col12 = "No Information to display"
-							if str(col13) == 'nan':
-										col13 = "No Information to display"
+							if col10 is None:
+								col10 = "No Information to display"
+							if col11 is None:
+								col11 = "No Information to display"
+							if col12 is None:
+								col12 = "No Information to display"
+							if col13 is None:
+								col13 = "No Information to display"
 
 							# print(col9_for_Json)
 							
