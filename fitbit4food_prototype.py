@@ -142,14 +142,27 @@ def recommendation_engine_gui():
 			
 			# Display 'Results for...' tag into html 
 			stc.html(TOTAL_PRODUCTS, height = 100)
-
+			# print(recommendations.columns)
 			# Manage sorting option
 			if sort_by == 'Price Low to High':
-				recommendations = recommendations.sort_values(by=['Product Price'], ascending=True)
+				recommendations['ProductPrice'].fillna(99999.0, inplace=True)
+				recommendations['ProductPrice'] = recommendations['ProductPrice'].astype(str)
+				recommendations['ProductPrice'].str.extract('(\d*\.?\d*)', expand=False).astype(float)
+				recommendations = recommendations.sort_values(by=['ProductPrice'], ascending=True)
+				
 			elif sort_by == 'Price High to Low':
-				recommendations = recommendations.sort_values(by=['Product Price'], ascending=False)
+				recommendations['ProductPrice'].fillna(0.0, inplace=True)
+				recommendations['ProductPrice'] = recommendations['ProductPrice'].astype(str)
+				recommendations['ProductPrice'].str.extract('(\d*\.?\d*)', expand=False).astype(float)
+
+				recommendations = recommendations.sort_values(by=['ProductPrice'], ascending=False)
+
+
 			elif user_preset == 'Price Conscious Peter' or sort_by == 'Unit Price Low to High':
-				recommendations = recommendations.sort_values(by=['price per base volume'], ascending=True)
+				recommendations['priceperbasevolume'].fillna("", inplace=True)
+				recommendations['priceperbasevolume'] = recommendations['priceperbasevolume'].astype(str)
+
+				recommendations = recommendations.sort_values(by=['priceperbasevolume'], ascending=True)
 			else:
 				pass
 
